@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use PDF;
+use DB;
 
 class DatasetController extends Controller
 {
@@ -18,13 +19,15 @@ class DatasetController extends Controller
     public function index(): View
     {
         //
-        $datas = Dataset::latest()->paginate(20);
-        return view('dataset', compact('datas'));
+        // $datas = Dataset::latest()->paginate(20);
+        // return view('dataset', compact('datas'));
+        return view('user');
     }
 
     public function create(): View
     {
-        return view('dataset.create');
+        $datas = Dataset::all();
+        return view('create', compact('datas'));
     }
     public function store(Request $request): RedirectResponse
     {
@@ -62,6 +65,9 @@ class DatasetController extends Controller
     {
         //get post by ID
         $data = Dataset::findOrFail($id);
+        // var_dump($data["id"]);
+        // var_dump($id);
+        // die();
 
         //render view with post
         return view('show', compact('data'));
@@ -77,5 +83,21 @@ class DatasetController extends Controller
         $keyword = $request->search;
         $datas = Dataset::where('nm_wp_sppt', 'like', "%" . $keyword . "%")->paginate(13);
         return view('dataset', compact('datas'))->with('i', (request()->input('page', 1) - 1) * 5);
+    }
+    public function searchQuery(Request $request)
+    {
+        return Dataset::select("nop_sppt")
+            ->where("nop_sppt", "LIKE", "%{$request->get('query')}%")
+            ->pluck('nop_sppt');
+
+        // return response()->json($data);
+    }
+    public function coba(Request $request)
+    {
+        $data = Dataset::where('nop_sppt', '=', $request->coba)->get()->toArray();
+        return view('create', compact('data'));
+        // dd($data);
+        // var_dump($data["id"]);
+        // die();
     }
 }
